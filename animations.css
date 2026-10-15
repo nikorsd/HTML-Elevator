@@ -1,0 +1,47 @@
+/* Open doors */
+
+@keyframes door-left-open {
+    from {
+        width: 50px;
+        margin-right: 0px;
+    }
+    to {
+        width: 0px;
+        margin-right: 50px;
+    }
+}
+
+@keyframes door-right-open {
+    from {
+        width: 50px;
+        margin-left: 0px;
+    }
+    to {
+        width: 0px;
+        margin-left: 50px;
+    }
+}
+
+/* Close doors */
+
+@keyframes door-left-close {
+    from {
+        width: 0px;
+        margin-right: 50px;
+    }
+    to {
+        width: 50px;
+        margin-right: 0px;
+    }
+}
+
+@keyframes door-right-close {
+    from {
+        width: 0px;
+        margin-left: 50px;
+    }
+    to {
+        width: 50px;
+        margin-left: 0px;
+    }
+}

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Elevator</title>
+</head>
+    <body>
+        <div class="shaft">
+            <div class="cabin floor-1">
+                <div id="door-left"></div>
+                <div id="door-right"></div>
+            </div>
+        </div>
+
+        <button onclick="goToFloor(1)">Floor 1</button>
+        <button onclick="goToFloor(2)">Floor 2</button>
+        <button onclick="goToFloor(3)">Floor 3</button>
+        <button onclick="doorOpen()">Open</button>
+        <button onclick="doorClose()">Close</button>
+
+        <script src="logic.js"></script>
+        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="animations.css">
+    </body>
+</html>

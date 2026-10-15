@@ -1,0 +1,55 @@
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 100vw;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.cabin {
+    background-color: white;
+    border-color: gray;
+    border-style: solid;
+    border-width: 10px;
+    display: flex;
+    width: 100px;
+    height: 125px;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    overflow: hidden;
+    transform: translateX(-50%);
+    transition: bottom 3s ease-in-out;
+}
+
+.cabin.floor-1 { bottom: 25px; }
+.cabin.floor-2 { bottom: 225px; }
+.cabin.floor-3 { bottom: 425px; }
+
+#door-left {
+    width: 50px;
+    height: 100%;
+    background-color: darkslategray;
+    border-right: solid;
+    transition: transform 1.5s ease-in-out;
+    transform: translateX(0);
+}
+
+#door-right {
+    width: 50px;
+    height: 100%;
+    background-color: darkslategray;
+    border-left: solid;
+    transition: transform 1.5s ease-in-out;
+    transform: translateX(0);
+}
+
+.shaft {
+    background-color: black;
+    width: 150px;
+    height: 600px;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+}
