@@ -3,6 +3,7 @@
 let queue = []
 let busy = false
 let processing = false
+let graceTimer = null
 
 function refresh() {
     location.reload(true)
@@ -10,14 +11,14 @@ function refresh() {
 
 // Caller accepts "cabin-panel"
 function doorOpen(caller) {
-    if (caller == "cabin-panel" && busy) return
+    if (caller === "cabin-panel" && busy) return
     document.getElementById('door-left').style.transform = "translateX(-100%)";
     document.getElementById('door-right').style.transform = "translateX(100%)";
 }
 
 // Caller accepts "cabin-panel"
 function doorClose(caller) {
-    if (caller == "cabin-panel" && busy) return
+    if (caller === "cabin-panel" && busy) return
     document.getElementById('door-left').style.transform = "translateX(0)";
     document.getElementById('door-right').style.transform = "translateX(0)";
 }
@@ -32,9 +33,24 @@ function doorStatus() {
     }
 }
 
+// Level in integer; target floor
+// Caller accepts "floor-call" or "cabin-panel"
 async function addTask(level, caller) {
     // No duplicates
     if (queue.find(t => t.level === level)) return
+
+    // Absolute slop... There should be better way of doing this but there isnt, classic javascript
+    const cabin = document.querySelector('.cabin');
+    const currentFloor = Number(cabin.className.split('-')[cabin.className.split('-').length - 1])
+
+    // Assert that the elevator isnt already on the target floor
+    // If it is, open the doors and close after 3 seconds
+    if (currentFloor == level) {
+        doorOpen()
+        // Close the door after 3 seconds
+        setTimeout(() => {doorClose()}, 3000)
+        return
+    }
 
     // Light up the button before moving
     const buttons = document.querySelectorAll('.elevator-button-outer');
@@ -47,7 +63,13 @@ async function addTask(level, caller) {
     });
 
     queue.push({level, caller})
-    processQueue()
+
+    // Grace period: wait 2s so more presses can accumulate before sorting + executing
+    clearTimeout(graceTimer)
+    graceTimer = setTimeout(() => {
+        sortQueue()
+        processQueue()
+    }, 2000)
 }
 
 async function processQueue() {
@@ -57,7 +79,6 @@ async function processQueue() {
     while (queue.length > 0) {
         const task = queue.shift()
         await goToFloor(task.level, task.caller)
-        await new Promise(r => setTimeout(r, 6000))
     }
     processing = false
 }
@@ -68,38 +89,15 @@ async function goToFloor(level, caller) {
     busy = true;
 
     const cabin = document.querySelector('.cabin');
-    // Open the door and return if the cabin is already at that floor
-    if ('cabin floor-' + level === cabin.className) {
-        doorOpen()
-        // Close the door after 3 seconds
-        setTimeout(() => {doorClose()}, 3000)
-        return
-    }
 
-    // Light up the pressed floor button
-    const buttons = document.querySelectorAll('.elevator-button-outer');
-    buttons.forEach((btn) => {
-        const inner = btn.querySelector('.elevator-button-inner');
-        if (inner && inner.textContent == level || btn.id.includes(String(level))) {
-            // Assert that the button that was pressed was inside the cabin, if yes. Do not light the call buttons outside
-            if (caller == 'cabin-panel' && btn.id) return
-            btn.classList.add('lit');
-        }
-    })
-
-    // We wait if the elevator wasnt called to give time for boarding
-    //if (!caller.includes('floor-call')) await new Promise(r => setTimeout(r, 2000))
-    if (!doorStatus()) await new Promise(r => setTimeout(r, 2000))
+    // Absolute slop... There should be better way of doing this but there isnt, classic javascript
+    const currentFloor = Number(cabin.className.split('-')[cabin.className.split('-').length - 1])
 
     // Close the door. Obviously...
     doorClose()
 
     // We wait if the elevator wasnt called to give time for boarding
-    //if (!caller.includes('floor-call')) await new Promise(r => setTimeout(r, 2000))
     if (!doorStatus()) await new Promise(r => setTimeout(r, 2000))
-
-    // Absolute slop... There should be better way of doing this but there isnt, classic javascript
-    const currentFloor = Number(cabin.className.split('-')[cabin.className.split('-').length - 1])
 
     const statusDisplay = document.getElementById('cabin-status-display')
     if (currentFloor > level) {
@@ -123,29 +121,53 @@ async function goToFloor(level, caller) {
         }, 1500)
     }
 
-    // Turn off the glow when the elevator arrives (after 3s transition)
-    setTimeout(() => {
-        buttons.forEach((btn) => {
-            const inner = btn.querySelector('.elevator-button-inner');
-            if (inner && inner.textContent == level || btn.id.includes(String(level))) {
-                btn.classList.remove('lit');
-            }
-        });
-        statusDisplay.innerHTML = "&ensp; " + level
-    }, 3000)
+    // Wait for the 3s travel
+    await new Promise(r => setTimeout(r, 3000))
 
-    setTimeout(() => {
-        doorOpen()
-    }, 4000)
+    // Turn off the glow when the elevator arrives
+    const buttons = document.querySelectorAll('.elevator-button-outer');
+    buttons.forEach((btn) => {
+        const inner = btn.querySelector('.elevator-button-inner');
+        if (inner && inner.textContent == level || btn.id.includes(String(level))) {
+            btn.classList.remove('lit');
+        }
+    });
+    // Update the status display
+    statusDisplay.innerHTML = "&ensp; " + level
 
-    setTimeout(() => {
-        doorClose()
-    }, 10000)
+    // Wait 1 more second, then open the doors (4s mark)
+    await new Promise(r => setTimeout(r, 1000))
+    doorOpen()
 
-    busy = false;
+    // Wait 6 more seconds, then close the doors and release the elevator (10s mark)
+    await new Promise(r => setTimeout(r, 6000))
+    doorClose()
+    busy = false
 }
 
 function call() {
     const button = document.querySelector('.elevator-button-outer')
     button.classList.toggle('lit')
+}
+
+// AI wrote this
+// Was too lazy to think the logic for this
+function sortQueue() {
+    if (queue.length === 0) return
+    const cabin = document.querySelector('.cabin')
+    const currentFloor = Number(cabin.className.split('-')[cabin.className.split('-').length - 1])
+
+    const firstTask = queue[0]
+    const goingUp = firstTask.level >= currentFloor
+
+    queue.sort((a, b) => {
+        const aInDirection = goingUp ? a.level >= currentFloor : a.level <= currentFloor
+        const bInDirection = goingUp ? b.level >= currentFloor : b.level <= currentFloor
+
+        if (aInDirection && !bInDirection) return -1
+        if (!aInDirection && bInDirection) return 1
+
+        if (goingUp) return a.level - b.level
+        return b.level - a.level
+    })
 }
