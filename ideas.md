@@ -1,0 +1,4 @@
+- [ ] If the mouse is hovering on the doors, dont close them.
+- [ ] Fire service.
+- [ ] Sounds.
+- [ ] Motor and counterweight visualization.
