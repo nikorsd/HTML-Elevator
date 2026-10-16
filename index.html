@@ -6,6 +6,18 @@
 	<title>Elevator</title>
 </head>
     <body>
+        <div class="call-container">
+            <div id="floor-call-3" class="elevator-button-outer">
+                <button onclick="addTask(3, 'floor-call')" class="elevator-button-inner">○</button>
+            </div>
+            <div id="floor-call-2" class="elevator-button-outer">
+                <button onclick="addTask(2, 'floor-call')" class="elevator-button-inner">○</button>
+            </div>
+            <div id="floor-call-1" class="elevator-button-outer">
+                <button onclick="addTask(1, 'floor-call')" class="elevator-button-inner">○</button>
+            </div>
+        </div>
+
         <div class="shaft">
             <div class="cabin floor-1">
                 <div id="door-left"></div>
@@ -13,11 +25,41 @@
             </div>
         </div>
 
-        <button onclick="goToFloor(1)">Floor 1</button>
-        <button onclick="goToFloor(2)">Floor 2</button>
-        <button onclick="goToFloor(3)">Floor 3</button>
-        <button onclick="doorOpen()">Open</button>
-        <button onclick="doorClose()">Close</button>
+        <!--Panel Buttons-->
+        <div class="elevator-panel">
+            <!--Status display-->
+            <div class="elevator-display">
+                <!--We have a leading spaces here indicating that the arrow is not lit-->
+                <h1 id="cabin-status-display">&ensp; 1</h1>
+            </div>
+
+            <h5>Brand</h5>
+
+            <div class="elevator-button-outer">
+                <button onclick="addTask(3, 'cabin-panel')" class="elevator-button-inner">3</button>
+            </div>
+            <div class="elevator-button-outer">
+                <button onclick="addTask(2, 'cabin-panel')" class="elevator-button-inner">2</button>
+            </div>
+            <div class="elevator-button-outer">
+                <button onclick="addTask(1, 'cabin-panel')" class="elevator-button-inner">1</button>
+            </div>
+
+            <!--Align door controls horizontally-->
+            <div class="door-controls">
+                <div class="elevator-button-outer">
+                    <button onclick="doorOpen('cabin-panel')" class="elevator-button-inner">⧮</button>
+                </div>
+                <div class="elevator-button-outer">
+                    <button onclick="doorClose('cabin-panel')" class="elevator-button-inner">⧯</button>
+                </div>
+            </div>
+
+            <!--Bell button-->
+            <div class="elevator-button-outer">
+                <button onclick="" class="elevator-button-inner">⍾</button>
+            </div>
+        </div>
 
         <script src="logic.js"></script>
         <link rel="stylesheet" href="style.css">
