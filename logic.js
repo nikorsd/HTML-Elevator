@@ -1,9 +1,10 @@
-//window.setInterval(refresh, 1000);
+//window.setInterval(refresh, 1000); // Used for auto refreshing the page on the development phase
 
 let queue = []
 let busy = false
 let processing = false
 let graceTimer = null
+let moving = false
 
 function refresh() {
     location.reload(true)
@@ -106,6 +107,7 @@ async function goToFloor(level, caller) {
         statusDisplay.innerHTML = "▲ " + currentFloor
     }
 
+    moving = true
     cabin.classList.remove('floor-1', 'floor-2', 'floor-3');
     cabin.classList.add('floor-' + level);
 
@@ -123,6 +125,7 @@ async function goToFloor(level, caller) {
 
     // Wait for the 3s travel
     await new Promise(r => setTimeout(r, 3000))
+    moving = false
 
     // Turn off the glow when the elevator arrives
     const buttons = document.querySelectorAll('.elevator-button-outer');
